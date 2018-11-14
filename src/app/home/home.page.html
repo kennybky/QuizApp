@@ -1,0 +1,70 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Home</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding [hidden]="step!==1">
+
+  <ion-list>
+<ion-list-header>
+  Select a category
+</ion-list-header>
+
+
+      <ion-item *ngFor="let category of categories" (click)="selectCategory(category.value)">
+        {{category.name}}
+      </ion-item>
+
+
+  </ion-list>
+
+</ion-content>
+
+<ion-content padding [hidden]="step!==2">
+  <ion-list>
+    <ion-list-header>
+      Select Difficulty
+    </ion-list-header>
+
+
+    <ion-item *ngFor="let diff of difficulties" (click)="selectDifficulty(diff)" text-capitalize="true">
+      {{diff}}
+    </ion-item>
+
+
+  </ion-list>
+</ion-content>
+
+<ion-content padding *ngIf="step===3">
+    <ion-card padding>
+        <ion-card-title>
+            Summary
+        </ion-card-title>
+        <ion-card-content>
+            <p>
+                Category: {{getCategory().name}}
+            </p>
+            <p text-capitalize="true">
+                Difficulty: {{difficulty}}
+            </p>
+        </ion-card-content>
+    </ion-card>
+
+    <ion-button ion-button round (click)="startQuiz()">
+        Start Quiz
+    </ion-button>
+
+
+</ion-content>
+
+<ion-content *ngIf="step === 4">
+    <ion-badge margin>
+        Correct answers: {{correctAnswers}} / 10
+    </ion-badge>
+
+    <ion-title>
+        Question {{counter+1}}
+    </ion-title>
+    <app-question [question]="current" *ngIf="current"></app-question>
+</ion-content>

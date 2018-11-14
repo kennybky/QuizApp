@@ -1,0 +1,33 @@
+<ion-content padding>
+ <ion-badge>
+     Time left: {{time_left}}
+ </ion-badge>
+
+  <ion-list>
+    <ion-list-header [innerHTML]="question.question">
+
+    </ion-list-header>
+
+
+    <ion-item ion-item *ngFor="let option of choices" (click)="selectAnswer(option)" [color]="getColor(option)">
+        <p [innerHTML]="option">
+        </p>
+    </ion-item>
+  </ion-list>
+
+    <div padding *ngIf="showingAnswer">
+        <p>
+            {{result}}
+        </p>
+        <p [innerHTML]="'The right answer was ' + question.correct_answer">
+
+        </p>
+
+    </div>
+
+
+
+</ion-content>
+
+
+

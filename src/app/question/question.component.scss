@@ -1,0 +1,13 @@
+ion-item{
+  list-style-type: upper-alpha;
+}
+
+.active {
+  background: dodgerblue;
+  color:white;
+}
+
+.active.correct {
+  background: greenyellow;
+  color:black;
+}

@@ -1,8 +1,17 @@
 import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
 import {Question} from '../models/question';
 import {HomePage} from '../home/home.page';
-import {TimeInterval} from 'rxjs';
+import {Observable, TimeInterval} from 'rxjs';
 import Timeout = NodeJS.Timeout;
+import {QuizService} from '../services/quiz-service';
+import {QuizResults} from '../models/quiz-results';
+
+
+interface GameState {
+    question: Question;
+    counter: number;
+    results: QuizResults;
+}
 
 @Component({
   selector: 'app-question',
@@ -11,18 +20,31 @@ import Timeout = NodeJS.Timeout;
 })
 export class QuestionComponent implements OnInit, OnChanges {
 
-  constructor(private home: HomePage) { }
-    @Input() question: Question;
+  constructor(private quiz: QuizService) {
+      console.log('here');
+      this.quiz.getQuestion().subscribe((gameState: GameState) => {
+          console.log(gameState)
+          this.question = gameState.question;
+          this.counter = gameState.counter;
+          this.results = gameState.results;
+          this.displayChoices();
+      });
+  }
+    @Input() start: boolean;
+  question: Question;
   choices = [] as Array<String>;
   result: String;
-  showingAnswer = true;
+  showingAnswer = false;
   selected: String;
   time_left = 10;
   timer: Timeout;
   chosen = false;
+  counter = 0;
+  results: QuizResults;
+
+
 
   ngOnInit() {
-    this.displayChoices();
   }
 
   getColor (value) {
@@ -44,7 +66,7 @@ export class QuestionComponent implements OnInit, OnChanges {
   displayChoices() {
     this.time_left = 10;
     this.chosen = false;
-    console.log(this.question.incorrect_answers)
+    console.log(this.question.incorrect_answers);
     const choices = [];
     for (const choice of this.question.incorrect_answers) {
       choices.push(choice);
@@ -91,14 +113,19 @@ export class QuestionComponent implements OnInit, OnChanges {
   }
 
   navigateNext(correct) {
-    this.home.changeQuestion(correct);
+   this.quiz.recordAnswer(correct);
   }
 
     ngOnChanges(changes: SimpleChanges): void {
-        const question: SimpleChange = changes.question;
-        this.question = question.currentValue;
-        this.displayChoices();
-
+        // const start: SimpleChange = changes.start;
+        // if (start.currentValue === true) {
+        //   this.refreshQuestion();
+        // }
     }
+
+    // refreshQuestion() {
+    //     this.question = this.quiz.getQuestion();
+    //     this.displayChoices();
+    // }
 
 }

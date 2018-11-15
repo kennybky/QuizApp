@@ -5,7 +5,7 @@ import {Question} from '../models/question';
 @Injectable({
   providedIn: 'root'
 })
-export class DataServiceService {
+export class DataService {
 
   constructor(private http: HttpClient) {
 

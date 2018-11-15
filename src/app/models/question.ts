@@ -1,4 +1,4 @@
-export class Question {
+export interface Question {
     category: String;
     correct_answer: String;
     incorrect_answers: Array<String>;

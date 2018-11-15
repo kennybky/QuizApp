@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Home</ion-title>
+    <ion-title color="header">Home</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -11,10 +11,13 @@
   Select a category
 </ion-list-header>
 
+<form>
 
-      <ion-item *ngFor="let category of categories" (click)="selectCategory(category.value)">
-        {{category.name}}
+
+      <ion-item *ngFor="let category of getCategories()" (click)="selectCategory(category)">
+           {{category.name}}
       </ion-item>
+</form>
 
 
   </ion-list>
@@ -28,7 +31,7 @@
     </ion-list-header>
 
 
-    <ion-item *ngFor="let diff of difficulties" (click)="selectDifficulty(diff)" text-capitalize="true">
+    <ion-item *ngFor="let diff of getDifficulties()" (click)="selectDifficulty(diff)" text-capitalize>
       {{diff}}
     </ion-item>
 
@@ -43,7 +46,7 @@
         </ion-card-title>
         <ion-card-content>
             <p>
-                Category: {{getCategory().name}}
+                Category: {{category.name}}
             </p>
             <p text-capitalize="true">
                 Difficulty: {{difficulty}}
@@ -58,13 +61,27 @@
 
 </ion-content>
 
-<ion-content *ngIf="step === 4">
-    <ion-badge margin>
-        Correct answers: {{correctAnswers}} / 10
-    </ion-badge>
+<ion-content [hidden]="step !== 4">
+    <app-question [start]="current"></app-question>
+</ion-content>
 
-    <ion-title>
-        Question {{counter+1}}
-    </ion-title>
-    <app-question [question]="current" *ngIf="current"></app-question>
+<ion-content  [hidden]="step !== 5">
+ <ion-card margin>
+     <ion-card-title padding>
+         <h2> Your Results </h2>
+     </ion-card-title>
+     <ion-card-content>
+         <canvas #doughnutCanvas></canvas>
+         <div *ngIf="results">
+             <p text-capitalize><b>Difficulty</b>: {{results.difficulty}}</p>
+             <p> <b>Correct Answers</b>: {{results.correct_answers}}/{{results.num_questions}}</p>
+         </div>
+         <div>
+             <ion-button ion-button round margin (click)="step=1">
+                 Play Again
+             </ion-button>
+         </div>
+     </ion-card-content>
+ </ion-card>
+
 </ion-content>

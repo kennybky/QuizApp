@@ -1,4 +1,13 @@
-<ion-content padding>
+<ion-content padding *ngIf="question">
+    <ion-badge margin *ngIf="results">
+        Correct answers: {{results.correct_answers}} / 10
+    </ion-badge>
+
+    <ion-title margin-top padding>
+        Question {{counter}}
+    </ion-title>
+
+
  <ion-badge>
      Time left: {{time_left}}
  </ion-badge>

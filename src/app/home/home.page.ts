@@ -1,7 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {Question} from '../models/question';
-import {DataServiceService} from '../services/data-service.service';
+import {DataService} from '../services/data-service';
 import {QuestionComponent} from '../question/question.component';
+import { Storage } from '@ionic/storage';
+import {QuizService} from '../services/quiz-service';
+import {QuizResults} from '../models/quiz-results';
+import {Chart} from 'chart.js';
 
 @Component({
   selector: 'app-home',
@@ -10,51 +14,54 @@ import {QuestionComponent} from '../question/question.component';
 })
 export class HomePage implements OnInit {
 
-  constructor(private dataService: DataServiceService) {
+    @ViewChild('doughnutCanvas') doughnutCanvas;
+
+  constructor(private dataService: DataService, private quizService: QuizService, private storage: Storage) {
   }
-    categories = [
-        {
-          name: 'All',
-            value: -1
-        },
-        {
-            name: 'General Knowledge',
-              value: 9
-        },
-        {
-          name: 'books',
-          value: 10},
-        {name: 'film', value: 11},
-        {name: 'music', value: 12},
-        {name: 'television', value: 14},
-        {name: 'politics', value: 24},
-        {name: 'sports', value: 21}
-    ];
-  difficulties =  ['easy', 'medium', 'hard'];
-    category: number;
+
+    category: any;
     difficulty: String;
     step = 1;
     questions: Question[];
-    current: Question;
+    current = true as boolean;
     counter = 0;
     correctAnswers = 0;
+    quizzes: QuizResults[];
+    results: QuizResults;
+
+    doughnutChart: Chart;
 
     ngOnInit(): void {
       this.correctAnswers = 0;
       this.step = 1;
+      this.storage.ready().then(() => {
+          this.getQuizzes();
+      });
+
+      // test chart
+// this.results = new QuizResults({name: 'All', value: 2}, 'easy', 10, 5);
+// this.step = 5;
+// this.displayChart();
+    }
+
+    async getQuizzes() {
+      this.quizzes = await this.storage.get('quizzes');
     }
 
 
-    selectCategory(value: number) {
+    selectCategory(value: any) {
       this.category = value;
       this.step = 2;
     }
 
-    getCategory () {
-      return this.categories.find((cat: any) => {
-        return this.category === cat.value;
-      });
+    getCategories() {
+        return this.quizService.categories;
     }
+
+    getDifficulties() {
+        return this.quizService.difficulties;
+    }
+
 
     selectDifficulty(difficulty: String) {
       this.difficulty = difficulty;
@@ -62,44 +69,78 @@ export class HomePage implements OnInit {
     }
 
     async startQuiz() {
-      if (this.category === -1) {
-          this.questions = await this.dataService.getAllQuestions(this.difficulty);
-      } else {
-        this.questions = await this.dataService.getCategoryQuestions(this.category, this.difficulty);
-      }
-      if (this.questions.length > 0) {
-          this.startCountDown();
-          this.insertQuestion();
-          this.step = 4;
-      } else {
+        const quiz = new QuizResults(this.category, this.difficulty, 10, 0);
+        const started = await this.quizService.startQuiz(quiz);
+            if (started) {
+               const results = await this.watchQuiz();
+               this.showResults(results);
+            } else {
+                this.noQuestions();
+            }
+    }
+
+    noQuestions () {
+        // ionic modal
         this.step = 1;
-      }
     }
 
-    startCountDown() {
-      this.counter = 0;
+  async watchQuiz(): Promise<QuizResults> {
+        this.current = true;
+        this.step = 4;
+        return await this.quizService.start();
     }
 
-    insertQuestion() {
-      this.current = this.questions[this.counter];
-      if (this.current === undefined || this.counter >= 10) {
-        this.reset();
-      }
+    showResults(results: QuizResults) {
+        // show results
+        console.log('ended');
+        if (this.quizzes == null){
+           this.quizzes = [];
+        }
+        this.quizzes.push(results)
+        this.storage.set('quizzes', this.quizzes).then(() => {
+            console.log('saved!');
+        }).catch((err) => {
+            console.log(err);
+        });
+        this.current = false;
+        this.step = 5;
+        this.results = results;
+        this.displayChart();
     }
 
-    changeQuestion(correct) {
-      this.correctAnswers += correct ? 1 : 0;
-      this.counter++;
-      this.insertQuestion();
-    }
+    displayChart() {
+        const correct = (this.results.correct_answers / this.results.num_questions) * 50;
+        this.doughnutChart = new Chart(this.doughnutCanvas.nativeElement, {
+            type: 'doughnut',
+            data: {
+                labels: ['Correct', 'Wrong'],
+                datasets: [{
+                    label: '# correct',
+                    data: [],
+                    backgroundColor: [
+                        'rgba(13, 200, 25, 0.8)',
+                        'rgba(128,128,128,0.8)'
+                    ],
+                }]
+            },
+            options: {
+                animation: {
+                    animateRotate: true
+                }
+            }
+        });
 
-    reset() {
-      this.step = 1;
-      this.current = null;
-      this.counter = 0;
-        this.correctAnswers = 0;
-    }
+                this.doughnutChart.data.datasets.forEach((dataset) => {
+                    dataset.data.push(correct);
+                    dataset.data.push(50 - correct);
+                });
 
+        this.doughnutChart.update({
+            duration: 2000,
+            easing: 'easeInCirc'
+        });
+
+    }
 }
 
 

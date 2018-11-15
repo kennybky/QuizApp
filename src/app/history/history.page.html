@@ -1,0 +1,20 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>History</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="dataInitialized">
+<ion-card  margin padding>
+  <p>
+    <b>Games Played</b> {{quizzes.length}}
+  </p>
+  <p>
+    <b>Score Percentage</b> {{scorePercentage}}%
+  </p>
+
+  <ion-button ion-button square color="dark" (click)="refresh()" >
+    Refresh
+  </ion-button>
+</ion-card>
+</ion-content>

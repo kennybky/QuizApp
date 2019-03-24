@@ -1,0 +1,81 @@
+<ion-content padding [hidden]="step!==1">
+
+  <ion-list>
+    <ion-list-header>
+      Select a category
+    </ion-list-header>
+
+    <form>
+
+
+      <ion-item *ngFor="let category of getCategories()" (click)="selectCategory(category)">
+        {{category.name}}
+      </ion-item>
+    </form>
+
+
+  </ion-list>
+
+</ion-content>
+
+<ion-content padding [hidden]="step!==2">
+  <ion-list>
+    <ion-list-header>
+      Select Difficulty
+    </ion-list-header>
+
+
+    <ion-item *ngFor="let diff of getDifficulties()" (click)="selectDifficulty(diff)" text-capitalize>
+      {{diff}}
+    </ion-item>
+
+
+  </ion-list>
+</ion-content>
+
+<ion-content padding *ngIf="step===3">
+  <ion-card padding>
+    <ion-card-title>
+      Summary
+    </ion-card-title>
+    <ion-card-content>
+      <p>
+        Category: {{category.name}}
+      </p>
+      <p text-capitalize="true">
+        Difficulty: {{difficulty}}
+      </p>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-button ion-button round (click)="startQuiz()">
+    Start Quiz
+  </ion-button>
+
+
+</ion-content>
+
+<ion-content [hidden]="step !== 4">
+  <app-question [start]="current"></app-question>
+</ion-content>
+
+<ion-content  [hidden]="step !== 5">
+  <ion-card margin>
+    <ion-card-title padding>
+      <h2> Your Results </h2>
+    </ion-card-title>
+    <ion-card-content>
+      <canvas #doughnutCanvas></canvas>
+      <div *ngIf="results">
+        <p text-capitalize><b>Difficulty</b>: {{results.difficulty}}</p>
+        <p> <b>Correct Answers</b>: {{results.correct_answers}}/{{results.num_questions}}</p>
+      </div>
+      <div>
+        <ion-button ion-button round margin (click)="step=1">
+          Play Again
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

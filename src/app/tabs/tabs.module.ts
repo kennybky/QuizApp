@@ -10,6 +10,7 @@ import { TabsPage } from './tabs.page';
 import { ContactPageModule } from '../contact/contact.module';
 import { HistoryPageModule } from '../history/history.module';
 import { HomePageModule } from '../home/home.module';
+import {QuizModule} from '../quiz/quiz.module';
 
 @NgModule({
   imports: [

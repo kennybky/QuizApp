@@ -21,9 +21,8 @@ interface GameState {
 export class QuestionComponent implements OnInit, OnChanges {
 
   constructor(private quiz: QuizService) {
-      console.log('here');
       this.quiz.getQuestion().subscribe((gameState: GameState) => {
-          console.log(gameState)
+          console.log(gameState);
           this.question = gameState.question;
           this.counter = gameState.counter;
           this.results = gameState.results;
